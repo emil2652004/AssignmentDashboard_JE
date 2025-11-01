@@ -1,16 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Modal from './Modal';
 import { addAssignment, updateAssignment } from '../utils/storageUtils';
 
 const AssignmentForm = ({ isOpen, onClose, onSuccess, assignment = null, userId }) => {
   const [formData, setFormData] = useState({
-    title: assignment?.title || '',
-    description: assignment?.description || '',
-    dueDate: assignment?.dueDate || '',
-    driveLink: assignment?.driveLink || ''
+    title: '',
+    description: '',
+    dueDate: '',
+    driveLink: ''
   });
 
   const [errors, setErrors] = useState({});
+
+  // Automatically populate form when assignment prop changes (for editing)
+  useEffect(() => {
+    if (assignment) {
+      setFormData({
+        title: assignment.title || '',
+        description: assignment.description || '',
+        dueDate: assignment.dueDate || '',
+        driveLink: assignment.driveLink || ''
+      });
+    } else {
+      // Reset form when creating new assignment
+      setFormData({
+        title: '',
+        description: '',
+        dueDate: '',
+        driveLink: ''
+      });
+    }
+  }, [assignment]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
