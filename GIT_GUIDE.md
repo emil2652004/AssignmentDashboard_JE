@@ -290,9 +290,10 @@ git log -5
 ```
 
 **Expected Output:**
+
 ```
 a1b2c3d docs: add testing and structure documentation
-e4f5g6h docs: add comprehensive project documentation  
+e4f5g6h docs: add comprehensive project documentation
 i7j8k9l style: unify header design across roles
 m0n1o2p feat: implement main app with routing logic
 ...
@@ -346,6 +347,7 @@ git push
 Follow [Conventional Commits](https://www.conventionalcommits.org/):
 
 ### Format
+
 ```
 <type>(<scope>): <subject>
 
@@ -356,20 +358,21 @@ Follow [Conventional Commits](https://www.conventionalcommits.org/):
 
 ### Types
 
-| Type | Description | Example |
-|------|-------------|---------|
-| `feat` | New feature | `feat: add assignment filtering` |
-| `fix` | Bug fix | `fix: resolve date formatting issue` |
-| `docs` | Documentation | `docs: update README with setup` |
-| `style` | Code style (no logic change) | `style: format code with prettier` |
-| `refactor` | Code refactoring | `refactor: extract modal logic` |
-| `test` | Add/update tests | `test: add unit tests for utils` |
-| `chore` | Maintenance | `chore: update dependencies` |
-| `perf` | Performance improvement | `perf: optimize list rendering` |
+| Type       | Description                  | Example                              |
+| ---------- | ---------------------------- | ------------------------------------ |
+| `feat`     | New feature                  | `feat: add assignment filtering`     |
+| `fix`      | Bug fix                      | `fix: resolve date formatting issue` |
+| `docs`     | Documentation                | `docs: update README with setup`     |
+| `style`    | Code style (no logic change) | `style: format code with prettier`   |
+| `refactor` | Code refactoring             | `refactor: extract modal logic`      |
+| `test`     | Add/update tests             | `test: add unit tests for utils`     |
+| `chore`    | Maintenance                  | `chore: update dependencies`         |
+| `perf`     | Performance improvement      | `perf: optimize list rendering`      |
 
 ### Examples
 
 **Good commits:**
+
 ```bash
 git commit -m "feat: add double-verification for submissions"
 git commit -m "fix: prevent duplicate submission clicks"
@@ -378,6 +381,7 @@ git commit -m "style: unify header design across roles"
 ```
 
 **Bad commits:**
+
 ```bash
 git commit -m "update"  # Too vague
 git commit -m "bug fix"  # Not specific
@@ -403,6 +407,7 @@ git log --oneline
 ## 🚫 What NOT to Commit
 
 Already in `.gitignore`:
+
 - `node_modules/` (dependencies)
 - `dist/` (build output)
 - `.env` (environment variables)
@@ -410,6 +415,7 @@ Already in `.gitignore`:
 - `.DS_Store` (Mac OS files)
 
 **Verify .gitignore is working:**
+
 ```bash
 git status
 # Should NOT show node_modules or dist
@@ -448,6 +454,7 @@ For free hosting on GitHub:
 5. **Click Save**
 
 **Note**: You need to commit the `dist/` folder (remove from .gitignore temporarily):
+
 ```bash
 # Build project
 npm run build

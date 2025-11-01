@@ -62,7 +62,6 @@ function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="text-center text-sm text-gray-600">
             <p>© 2025 JoinEasy - Assignment Management Dashboard</p>
-            <p className="mt-1">Built with React, Tailwind CSS, and localStorage</p>
           </div>
         </div>
       </footer>

@@ -29,12 +29,14 @@ docker run -p 3000:80 joineasy
 ## 🔑 Demo Accounts
 
 ### Students
+
 - alice@student.com - Alice Johnson
 - bob@student.com - Bob Smith
 - carol@student.com - Carol Davis
 - david@student.com - David Wilson
 
 ### Professors
+
 - emily@professor.com - Dr. Emily Brown
 - michael@professor.com - Prof. Michael Chen
 
@@ -42,15 +44,15 @@ docker run -p 3000:80 joineasy
 
 ## 📂 Key Files
 
-| File | Location | Purpose |
-|------|----------|---------|
-| Main app | `src/App.jsx` | App container & routing |
-| Entry point | `src/main.jsx` | React initialization |
-| Student view | `src/components/StudentView.jsx` | Student dashboard |
-| Professor view | `src/components/AdminView.jsx` | Professor dashboard |
-| Data utils | `src/utils/storageUtils.js` | localStorage operations |
-| Mock data | `src/data/mockData.js` | Initial seed data |
-| Styles | `src/index.css` | Global styles + Tailwind |
+| File           | Location                         | Purpose                  |
+| -------------- | -------------------------------- | ------------------------ |
+| Main app       | `src/App.jsx`                    | App container & routing  |
+| Entry point    | `src/main.jsx`                   | React initialization     |
+| Student view   | `src/components/StudentView.jsx` | Student dashboard        |
+| Professor view | `src/components/AdminView.jsx`   | Professor dashboard      |
+| Data utils     | `src/utils/storageUtils.js`      | localStorage operations  |
+| Mock data      | `src/data/mockData.js`           | Initial seed data        |
+| Styles         | `src/index.css`                  | Global styles + Tailwind |
 
 ---
 
@@ -76,32 +78,35 @@ App
 
 ## 📚 Documentation Files
 
-| File | What's Inside |
-|------|--------------|
-| `README.md` | Main project overview |
-| `SETUP.md` | 5-minute setup guide |
-| `ARCHITECTURE.md` | Component structure & design decisions |
-| `DEPLOYMENT.md` | Netlify, Vercel, Docker guides |
-| `FOLDER_STRUCTURE.md` | Complete file breakdown |
-| `GIT_GUIDE.md` | Git setup & commit history |
-| `DELIVERABLES.md` | Complete deliverables checklist |
+| File                  | What's Inside                          |
+| --------------------- | -------------------------------------- |
+| `README.md`           | Main project overview                  |
+| `SETUP.md`            | 5-minute setup guide                   |
+| `ARCHITECTURE.md`     | Component structure & design decisions |
+| `DEPLOYMENT.md`       | Netlify, Vercel, Docker guides         |
+| `FOLDER_STRUCTURE.md` | Complete file breakdown                |
+| `GIT_GUIDE.md`        | Git setup & commit history             |
+| `DELIVERABLES.md`     | Complete deliverables checklist        |
 
 ---
 
 ## 🚀 Deploy Options
 
 ### Netlify
+
 ```bash
 npm run build
 netlify deploy --prod --dir=dist
 ```
 
 ### Vercel
+
 ```bash
 vercel --prod
 ```
 
 ### Docker
+
 ```bash
 docker-compose up -d
 ```
@@ -120,6 +125,7 @@ docker-compose up -d
 ## ✅ Features Checklist
 
 **Student:**
+
 - [x] View assignments
 - [x] Filter by status
 - [x] Submit assignments
@@ -127,6 +133,7 @@ docker-compose up -d
 - [x] Progress tracking
 
 **Professor:**
+
 - [x] Create assignments
 - [x] Edit/delete assignments
 - [x] Track student progress
@@ -138,6 +145,7 @@ docker-compose up -d
 ## 🐛 Troubleshooting
 
 ### Dev server won't start
+
 ```bash
 rm -rf node_modules package-lock.json
 npm install
@@ -145,15 +153,20 @@ npm run dev
 ```
 
 ### Build fails
+
 ```bash
 rm -rf node_modules/.vite
 npm run build
 ```
 
 ### Port already in use
+
 Change port in `vite.config.js`:
+
 ```javascript
-server: { port: 3000 }
+server: {
+  port: 3000;
+}
 ```
 
 ---

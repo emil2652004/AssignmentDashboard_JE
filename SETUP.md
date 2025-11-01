@@ -5,10 +5,12 @@ Get JoinEasy running in 5 minutes!
 ## Prerequisites
 
 Make sure you have installed:
+
 - [Node.js](https://nodejs.org/) (v16 or higher)
 - npm (comes with Node.js)
 
 Check your versions:
+
 ```bash
 node --version  # Should be v16 or higher
 npm --version   # Should be 8 or higher
@@ -19,12 +21,14 @@ npm --version   # Should be 8 or higher
 ### Step 1: Clone or Download
 
 **Option A: Clone with Git**
+
 ```bash
 git clone https://github.com/yourusername/JoinEasy.git
 cd JoinEasy
 ```
 
 **Option B: Download ZIP**
+
 1. Download the project ZIP
 2. Extract it
 3. Open terminal in the extracted folder
@@ -44,6 +48,7 @@ npm run dev
 ```
 
 You should see:
+
 ```
   VITE v5.0.0  ready in XXX ms
 
@@ -79,15 +84,16 @@ Navigate to: **http://localhost:5173**
 
 ## 🔧 Available Commands
 
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start development server with hot reload |
-| `npm run build` | Create production build in `dist/` folder |
-| `npm run preview` | Preview production build locally |
+| Command           | Description                               |
+| ----------------- | ----------------------------------------- |
+| `npm run dev`     | Start development server with hot reload  |
+| `npm run build`   | Create production build in `dist/` folder |
+| `npm run preview` | Preview production build locally          |
 
 ## 📂 What's Inside?
 
 After installation, your folder structure:
+
 ```
 JoinEasy/
 ├── node_modules/       # Dependencies (auto-generated)
@@ -103,6 +109,7 @@ JoinEasy/
 ### Port Already in Use
 
 If port 5173 is busy:
+
 ```bash
 # Windows
 netstat -ano | findstr :5173
@@ -140,18 +147,21 @@ npm run dev
 ## 🚀 Deploy Your Own
 
 **Netlify** (Easiest):
+
 ```bash
 npm run build
 # Drag and drop 'dist' folder to netlify.app/drop
 ```
 
 **Vercel**:
+
 ```bash
 npm install -g vercel
 vercel
 ```
 
 **Docker**:
+
 ```bash
 docker build -t joineasy .
 docker run -p 3000:80 joineasy

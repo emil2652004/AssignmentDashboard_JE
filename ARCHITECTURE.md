@@ -1,6 +1,7 @@
 # 🏗️ Architecture & Design Documentation
 
 ## Table of Contents
+
 - [System Architecture](#system-architecture)
 - [Component Structure](#component-structure)
 - [Data Flow](#data-flow)
@@ -51,13 +52,13 @@
 
 ### Technology Stack
 
-| Layer | Technology | Purpose |
-|-------|-----------|---------|
-| **UI Framework** | React 18.2 | Component-based UI with hooks |
-| **Build Tool** | Vite 5.0 | Fast builds and HMR |
-| **Styling** | Tailwind CSS 3.4 | Utility-first responsive design |
-| **Data Layer** | localStorage | Client-side persistence |
-| **Routing** | Conditional Rendering | Role-based view switching |
+| Layer            | Technology            | Purpose                         |
+| ---------------- | --------------------- | ------------------------------- |
+| **UI Framework** | React 18.2            | Component-based UI with hooks   |
+| **Build Tool**   | Vite 5.0              | Fast builds and HMR             |
+| **Styling**      | Tailwind CSS 3.4      | Utility-first responsive design |
+| **Data Layer**   | localStorage          | Client-side persistence         |
+| **Routing**      | Conditional Rendering | Role-based view switching       |
 
 ---
 
@@ -101,21 +102,24 @@ App.jsx (Root)
 ### Component Responsibilities
 
 #### 🔹 **App.jsx**
+
 - **Role**: Main application container and router
 - **State**: Current user, login status
 - **Logic**: Role-based view rendering
 - **Children**: Login, Header, StudentView, AdminView
 
 #### 🔹 **Login.jsx**
+
 - **Role**: Authentication and user selection
 - **State**: Selected user, user type (student/professor)
-- **Features**: 
+- **Features**:
   - Animated toggle between roles
   - User dropdown selection
   - Demo account quick access
 - **Design**: Centered card with gradient background
 
 #### 🔹 **Header.jsx**
+
 - **Role**: Top navigation bar (consistent across roles)
 - **Props**: user, onLogout
 - **Features**:
@@ -126,6 +130,7 @@ App.jsx (Root)
 - **Design**: White background, sticky positioning
 
 #### 🔹 **StudentView.jsx**
+
 - **Role**: Student dashboard
 - **State**: Assignments, filter selection, submission modal state
 - **Features**:
@@ -136,6 +141,7 @@ App.jsx (Root)
 - **Data Operations**: Read assignments, create submissions
 
 #### 🔹 **AdminView.jsx**
+
 - **Role**: Professor dashboard
 - **State**: Assignments, students, expanded assignment, form modal state
 - **Features**:
@@ -146,6 +152,7 @@ App.jsx (Root)
 - **Data Operations**: CRUD assignments, read submissions
 
 #### 🔹 **AssignmentCard.jsx**
+
 - **Role**: Reusable assignment display (used in both views)
 - **Props**: assignment, onSubmit (optional), onEdit (optional), onDelete (optional)
 - **Variants**:
@@ -154,6 +161,7 @@ App.jsx (Root)
 - **Design**: Card with gradient border, hover effects
 
 #### 🔹 **AssignmentForm.jsx**
+
 - **Role**: Create/Edit assignment modal
 - **Props**: isOpen, onClose, onSuccess, assignment (optional), userId
 - **State**: Form data, validation errors
@@ -161,18 +169,21 @@ App.jsx (Root)
 - **Design**: Modal with form fields and purple-themed buttons
 
 #### 🔹 **ConfirmSubmissionModal.jsx**
+
 - **Role**: Double-verification for assignment submission
 - **Props**: isOpen, onClose, onConfirm, assignmentTitle
 - **Features**: Warning message, final confirmation button
 - **Design**: Modal with warning icon, red confirm button
 
 #### 🔹 **Modal.jsx**
+
 - **Role**: Reusable modal wrapper component
 - **Props**: isOpen, onClose, title, children, size
 - **Features**: Backdrop click to close, escape key support
 - **Design**: Centered overlay with backdrop blur
 
 #### 🔹 **ProgressBar.jsx**
+
 - **Role**: Visual progress indicator
 - **Props**: percentage, label (optional), showLabel (optional)
 - **Features**: Animated fill, color-coded by percentage
@@ -195,7 +206,7 @@ App.jsx (Root)
     },
     // ... more users
   ],
-  
+
   "assignments": [
     {
       id: "unique-id",
@@ -208,7 +219,7 @@ App.jsx (Root)
     },
     // ... more assignments
   ],
-  
+
   "submissions": [
     {
       id: "unique-id",
@@ -218,7 +229,7 @@ App.jsx (Root)
     },
     // ... more submissions
   ],
-  
+
   "currentUser": {
     // Current logged-in user object
   }
@@ -228,28 +239,32 @@ App.jsx (Root)
 ### Data Flow Patterns
 
 #### 1️⃣ **Login Flow**
+
 ```
-User selects account → setCurrentUser() → localStorage.setItem() 
+User selects account → setCurrentUser() → localStorage.setItem()
 → App re-renders → Role-based view loads → Fetch user's data
 ```
 
 #### 2️⃣ **Student Submits Assignment**
+
 ```
-Click Submit → ConfirmSubmissionModal opens → User confirms 
-→ addSubmission() → localStorage updated → StudentView re-renders 
+Click Submit → ConfirmSubmissionModal opens → User confirms
+→ addSubmission() → localStorage updated → StudentView re-renders
 → Card shows "Submitted" badge
 ```
 
 #### 3️⃣ **Professor Creates Assignment**
+
 ```
-Click Create → AssignmentForm opens → Fill form → Submit 
-→ addAssignment() → localStorage updated → AdminView re-renders 
+Click Create → AssignmentForm opens → Fill form → Submit
+→ addAssignment() → localStorage updated → AdminView re-renders
 → New assignment appears
 ```
 
 #### 4️⃣ **Professor Views Progress**
+
 ```
-Click "View Details" → Calculate submitted/pending students 
+Click "View Details" → Calculate submitted/pending students
 → Expand card → Show student lists with status
 ```
 
@@ -260,6 +275,7 @@ Click "View Details" → Calculate submitted/pending students
 ### 1. **No Backend - localStorage Only**
 
 **Why?**
+
 - ✅ Simplifies demo/portfolio setup
 - ✅ No server costs or configuration
 - ✅ Instant data persistence
@@ -267,6 +283,7 @@ Click "View Details" → Calculate submitted/pending students
 - ✅ Fast development iteration
 
 **Trade-offs:**
+
 - ❌ Data limited to single browser
 - ❌ No multi-user collaboration
 - ❌ Data clears if localStorage is cleared
@@ -278,23 +295,25 @@ Click "View Details" → Calculate submitted/pending students
 ### 2. **Component Reusability**
 
 **AssignmentCard used in both views:**
+
 ```jsx
 // Student View
-<AssignmentCard 
-  assignment={assignment} 
-  onSubmit={handleSubmit} 
+<AssignmentCard
+  assignment={assignment}
+  onSubmit={handleSubmit}
 />
 
 // Admin View
-<AssignmentCard 
-  assignment={assignment} 
-  onEdit={handleEdit} 
-  onDelete={handleDelete} 
+<AssignmentCard
+  assignment={assignment}
+  onEdit={handleEdit}
+  onDelete={handleDelete}
   showProgress={true}
 />
 ```
 
 **Benefits:**
+
 - Consistent UI across roles
 - Less code duplication
 - Easier maintenance
@@ -305,15 +324,17 @@ Click "View Details" → Calculate submitted/pending students
 ### 3. **Double-Verification Submission**
 
 **Why add extra confirmation step?**
+
 - Prevents accidental submissions
 - Makes submission feel important
 - Clear warning about finality
 - Better UX for high-stakes actions
 
 **Implementation:**
+
 ```
-Submit Button → First Modal (Are you sure?) 
-→ Confirm Button → Second Modal (Final confirmation) 
+Submit Button → First Modal (Are you sure?)
+→ Confirm Button → Second Modal (Final confirmation)
 → Actual Submission
 ```
 
@@ -325,6 +346,7 @@ Submit Button → First Modal (Are you sure?)
 **Current Design**: Unified white header, blue logo for both roles
 
 **Rationale:**
+
 - Consistent branding
 - Cleaner, more professional look
 - Logo (JE) as the primary brand element
@@ -339,15 +361,16 @@ Submit Button → First Modal (Are you sure?)
 ```javascript
 // mockData.js
 export const initializeData = () => {
-  if (!localStorage.getItem('users')) {
-    localStorage.setItem('users', JSON.stringify(mockUsers));
-    localStorage.setItem('assignments', JSON.stringify(mockAssignments));
-    localStorage.setItem('submissions', JSON.stringify(mockSubmissions));
+  if (!localStorage.getItem("users")) {
+    localStorage.setItem("users", JSON.stringify(mockUsers));
+    localStorage.setItem("assignments", JSON.stringify(mockAssignments));
+    localStorage.setItem("submissions", JSON.stringify(mockSubmissions));
   }
 };
 ```
 
 **Benefits:**
+
 - Immediate demo functionality
 - Realistic data scenarios
 - Easy to showcase features
@@ -359,6 +382,7 @@ export const initializeData = () => {
 ### Why No Redux/Context?
 
 **Project doesn't use global state management because:**
+
 1. **Simple state needs**: Most state is component-local
 2. **localStorage as source of truth**: Data fetched on component mount
 3. **No complex state sharing**: Parent-child props sufficient
@@ -367,13 +391,13 @@ export const initializeData = () => {
 
 ### State Locations
 
-| State | Location | Type |
-|-------|----------|------|
-| Current user | App.jsx | useState |
+| State            | Location                | Type     |
+| ---------------- | ----------------------- | -------- |
+| Current user     | App.jsx                 | useState |
 | Assignments list | StudentView / AdminView | useState |
-| Filter selection | StudentView | useState |
-| Modal open/close | Various components | useState |
-| Form data | AssignmentForm | useState |
+| Filter selection | StudentView             | useState |
+| Modal open/close | Various components      | useState |
+| Form data        | AssignmentForm          | useState |
 
 ---
 
@@ -445,6 +469,7 @@ theme: {
 - **Hidden elements**: Hide non-essential info on mobile
 
 Example:
+
 ```jsx
 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
   {/* 1 column on mobile, 2 on tablet, 3 on desktop */}
@@ -478,12 +503,14 @@ Total: ~170 KB (gzipped: ~60 KB)
 ## 🔐 Security Considerations
 
 ### Current State (Demo App)
+
 - ⚠️ No real authentication
 - ⚠️ No password validation
 - ⚠️ No input sanitization
 - ⚠️ Client-side only (no sensitive data)
 
 ### Production Recommendations
+
 1. **Add authentication**: JWT tokens, OAuth, or session-based
 2. **Validate inputs**: Sanitize all user inputs on backend
 3. **API layer**: Move data operations to secure backend
@@ -496,6 +523,7 @@ Total: ~170 KB (gzipped: ~60 KB)
 ## 🚀 Future Enhancements
 
 ### Potential Features
+
 1. **Real backend**: Firebase, Supabase, or custom Node.js API
 2. **File uploads**: Actual file submission, not just Drive links
 3. **Notifications**: Email/push notifications for new assignments
@@ -508,6 +536,7 @@ Total: ~170 KB (gzipped: ~60 KB)
 10. **Multi-language**: i18n support
 
 ### Architecture Improvements
+
 1. **TypeScript**: Add type safety
 2. **Testing**: Jest + React Testing Library
 3. **State management**: Add Context or Redux if app grows
@@ -519,6 +548,7 @@ Total: ~170 KB (gzipped: ~60 KB)
 ## 📚 Learning Resources
 
 This project demonstrates:
+
 - ✅ React functional components and hooks
 - ✅ Props and component composition
 - ✅ Conditional rendering
@@ -530,6 +560,7 @@ This project demonstrates:
 - ✅ State management strategies
 
 Ideal for:
+
 - React beginners learning component architecture
 - Portfolio projects showcasing full-stack thinking
 - Interview assignments demonstrating clean code
