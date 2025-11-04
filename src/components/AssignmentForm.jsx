@@ -45,27 +45,31 @@ const AssignmentForm = ({ isOpen, onClose, onSuccess, assignment = null, userId,
 
   // Automatically populate form when assignment prop changes (for editing)
   useEffect(() => {
-    if (assignment) {
-      setFormData({
-        title: assignment.title || '',
-        description: assignment.description || '',
-        dueDate: assignment.dueDate || '',
-        oneDriveLink: assignment.oneDriveLink || assignment.driveLink || '',
-        submissionType: assignment.submissionType || 'individual',
-        courseId: assignment.courseId || ''
-      });
-    } else {
-      // Reset form when creating new assignment
-      setFormData({
-        title: '',
-        description: '',
-        dueDate: '',
-        oneDriveLink: '',
-        submissionType: 'individual',
-        courseId: selectedCourseId || '' // Pre-select course if provided
-      });
+    if (isOpen) {
+      if (assignment) {
+        setFormData({
+          title: assignment.title || '',
+          description: assignment.description || '',
+          dueDate: assignment.dueDate || '',
+          oneDriveLink: assignment.oneDriveLink || assignment.driveLink || '',
+          submissionType: assignment.submissionType || 'individual',
+          courseId: assignment.courseId || ''
+        });
+      } else {
+        // Reset form when creating new assignment
+        setFormData({
+          title: '',
+          description: '',
+          dueDate: '',
+          oneDriveLink: '',
+          submissionType: 'individual',
+          courseId: selectedCourseId || '' // Pre-select course if provided
+        });
+        setGroups([]); // Reset groups
+        setErrors({}); // Reset errors
+      }
     }
-  }, [assignment, selectedCourseId]);
+  }, [assignment, selectedCourseId, isOpen]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

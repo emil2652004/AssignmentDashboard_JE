@@ -380,12 +380,17 @@ export const getStudentProgress = (studentId) => {
   // Filter assignments to only those from enrolled courses
   const assignments = allAssignments.filter(a => enrolledCourseIds.includes(a.courseId));
   
-  // Get submissions
-  const submissions = getSubmissionsByStudent(studentId);
-  
   if (assignments.length === 0) return 0;
   
-  return Math.round((submissions.length / assignments.length) * 100);
+  // Count how many assignments the student has submitted
+  let submittedCount = 0;
+  assignments.forEach(assignment => {
+    if (isSubmitted(assignment.id, studentId)) {
+      submittedCount++;
+    }
+  });
+  
+  return Math.round((submittedCount / assignments.length) * 100);
 };
 
 export const getAssignmentProgress = (assignmentId) => {

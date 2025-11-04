@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Modal from './Modal';
-import { addSubmission, isSubmitted, addAcknowledgement, addGroupAcknowledgement, getStudentGroup, getCourses } from '../utils/storageUtils';
+import { addSubmission, isSubmitted, addAcknowledgement, addGroupAcknowledgement, getStudentGroupForAssignment, getCourses } from '../utils/storageUtils';
 
 const ConfirmSubmissionModal = ({ isOpen, onClose, assignment, studentId, onSubmit }) => {
   const [step, setStep] = useState(1);
@@ -22,8 +22,8 @@ const ConfirmSubmissionModal = ({ isOpen, onClose, assignment, studentId, onSubm
         if (!isSubmitted(assignment.id, studentId)) {
           // Check if this is a group assignment
           if (assignment.submissionType === 'group') {
-            // Get the student's group for this course
-            const studentGroup = getStudentGroup(studentId, assignment.courseId);
+            // Get the student's group for this assignment
+            const studentGroup = getStudentGroupForAssignment(studentId, assignment.id);
             
             if (!studentGroup) {
               setError('You must be part of a group to submit this assignment.');
@@ -69,7 +69,7 @@ const ConfirmSubmissionModal = ({ isOpen, onClose, assignment, studentId, onSubm
 
   // Get student's group info if this is a group assignment
   const studentGroup = assignment?.submissionType === 'group' 
-    ? getStudentGroup(studentId, assignment.courseId) 
+    ? getStudentGroupForAssignment(studentId, assignment?.id) 
     : null;
 
   return (

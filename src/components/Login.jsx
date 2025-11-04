@@ -32,26 +32,33 @@ const Login = ({ onLogin, onSwitchToRegister }) => {
   const currentUsers = userType === 'student' ? studentUsers : adminUsers;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-blue-50 to-purple-50 flex items-center justify-center px-4">
-      <div className="max-w-md w-full">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl shadow-lg mb-4 transition-all duration-500 transform hover:scale-110">
-            <span className="text-white font-bold text-3xl">JE</span>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center px-4 relative overflow-hidden">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-20 w-72 h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
+        <div className="absolute top-40 right-20 w-72 h-72 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse delay-1000"></div>
+        <div className="absolute -bottom-8 left-1/2 w-72 h-72 bg-indigo-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse delay-500"></div>
+      </div>
+
+      <div className="max-w-md w-full relative z-10">
+        <div className="text-center mb-6">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl shadow-xl mb-3 transition-all duration-500 transform hover:scale-110 hover:rotate-6">
+            <span className="text-white font-bold text-2xl">JE</span>
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">JoinEasy</h1>
-          <p className="text-gray-600">Assignment Management Dashboard</p>
+          <h1 className="text-3xl font-black gradient-text mb-1">JoinEasy</h1>
+          <p className="text-gray-600 font-medium text-sm">Assignment Management Dashboard</p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-xl p-8 overflow-hidden">
+        <div className="glass-effect rounded-2xl shadow-2xl p-6 overflow-hidden">
           {/* Toggle Buttons */}
-          <div className="flex bg-gray-100 rounded-lg p-1 mb-6">
+          <div className="flex bg-gray-100/80 backdrop-blur-sm rounded-xl p-1 mb-5">
             <button
               type="button"
               onClick={() => handleUserTypeSwitch('student')}
-              className={`flex-1 py-3 px-4 rounded-md font-medium transition-all duration-300 ${
+              className={`flex-1 py-2.5 px-4 rounded-lg font-bold transition-all duration-300 ${
                 userType === 'student'
-                  ? 'bg-gradient-to-r from-blue-500 to-cyan-600 text-white shadow-md transform scale-105'
-                  : 'text-gray-600 hover:text-gray-900'
+                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg transform scale-105'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
               }`}
             >
               <span className="flex items-center justify-center">
@@ -62,10 +69,10 @@ const Login = ({ onLogin, onSwitchToRegister }) => {
             <button
               type="button"
               onClick={() => handleUserTypeSwitch('professor')}
-              className={`flex-1 py-3 px-4 rounded-md font-medium transition-all duration-300 ${
+              className={`flex-1 py-2.5 px-4 rounded-lg font-bold transition-all duration-300 ${
                 userType === 'professor'
-                  ? 'bg-gradient-to-r from-purple-500 to-pink-600 text-white shadow-md transform scale-105'
-                  : 'text-gray-600 hover:text-gray-900'
+                  ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg transform scale-105'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
               }`}
             >
               <span className="flex items-center justify-center">
@@ -81,62 +88,76 @@ const Login = ({ onLogin, onSwitchToRegister }) => {
               key={userType}
               className="animate-fadeIn"
             >
-              <h2 className="text-2xl font-semibold text-gray-900 mb-2">
-                {userType === 'student' ? 'Student Login' : 'Professor Login'}
-              </h2>
-              <p className="text-sm text-gray-500 mb-6">
-                {userType === 'student' 
-                  ? 'Access your assignments and track progress' 
-                  : 'Manage assignments and monitor student submissions'}
-              </p>
+              <div className="text-center mb-5">
+                <h2 className="text-2xl font-black gradient-text mb-1">
+                  {userType === 'student' ? 'Student Login' : 'Professor Login'}
+                </h2>
+                <p className="text-sm text-gray-600 font-medium">
+                  {userType === 'student' 
+                    ? '📚 Access your assignments and track progress' 
+                    : '👨‍🏫 Manage assignments and monitor student submissions'}
+                </p>
+              </div>
               
-              <form onSubmit={handleLogin} className="space-y-6">
+              <form onSubmit={handleLogin} className="space-y-5">
                 <div>
-                  <label className="label">
+                  <label className="label text-gray-800">
                     Select Your {userType === 'student' ? 'Student' : 'Professor'} Account
                   </label>
-                  <select
-                    value={selectedUser}
-                    onChange={(e) => setSelectedUser(e.target.value)}
-                    className="input-field"
-                    required
-                  >
-                    <option value="">Choose an account...</option>
-                    {currentUsers.map(user => (
-                      <option key={user.id} value={user.id}>
-                        {user.name} ({user.email})
-                      </option>
-                    ))}
-                  </select>
+                  <div className="relative">
+                    <select
+                      value={selectedUser}
+                      onChange={(e) => setSelectedUser(e.target.value)}
+                      className="input-field appearance-none pr-10 font-medium text-gray-800 cursor-pointer hover:border-blue-300 transition-colors"
+                      required
+                    >
+                      <option value="">Choose an account...</option>
+                      {currentUsers.map(user => (
+                        <option key={user.id} value={user.id} className="py-2">
+                          {user.name} • {user.email}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                      <svg className="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
+                  </div>
                 </div>
 
                 <button
                   type="submit"
                   disabled={!selectedUser}
-                  className={`w-full py-3 px-4 rounded-lg font-medium transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed ${
+                  className={`w-full py-3 px-4 rounded-xl font-bold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed ${
                     userType === 'student'
-                      ? 'bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105'
-                      : 'bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105'
+                      ? 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-xl hover:shadow-2xl transform hover:scale-105 disabled:hover:scale-100'
+                      : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-xl hover:shadow-2xl transform hover:scale-105 disabled:hover:scale-100'
                   }`}
                 >
-                  Continue to Dashboard
+                  <span className="flex items-center justify-center">
+                    <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                    </svg>
+                    Continue to Dashboard
+                  </span>
                 </button>
               </form>
 
               {/* Switch to Register */}
-              <div className="text-center pt-4 mt-4 border-t border-gray-200">
-                <p className="text-sm text-gray-600">
+              <div className="text-center pt-5 mt-5 border-t border-gray-200/50">
+                <p className="text-sm text-gray-600 font-medium">
                   Don't have an account?{' '}
                   <button
                     type="button"
                     onClick={onSwitchToRegister}
-                    className={`font-medium ${
+                    className={`font-bold underline decoration-2 underline-offset-2 transition-colors ${
                       userType === 'student'
                         ? 'text-blue-600 hover:text-blue-700'
                         : 'text-purple-600 hover:text-purple-700'
                     }`}
                   >
-                    Register here
+                    Register here →
                   </button>
                 </p>
               </div>
