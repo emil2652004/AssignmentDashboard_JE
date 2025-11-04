@@ -1,39 +1,76 @@
 import React, { useState } from 'react';
 import Modal from './Modal';
-import { addSubmission, isSubmitted } from '../utils/storageUtils';
+import { addSubmission, isSubmitted, addAcknowledgement, addGroupAcknowledgement, getStudentGroup, getCourses } from '../utils/storageUtils';
 
 const ConfirmSubmissionModal = ({ isOpen, onClose, assignment, studentId, onSubmit }) => {
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
   const handleFirstConfirm = () => {
     setStep(2);
+    setError('');
   };
 
   const handleFinalConfirm = async () => {
     setIsSubmitting(true);
+    setError('');
     
     // Simulate a small delay for UX
     setTimeout(() => {
-      if (!isSubmitted(assignment.id, studentId)) {
-        addSubmission(assignment.id, studentId);
+      try {
+        if (!isSubmitted(assignment.id, studentId)) {
+          // Check if this is a group assignment
+          if (assignment.submissionType === 'group') {
+            // Get the student's group for this course
+            const studentGroup = getStudentGroup(studentId, assignment.courseId);
+            
+            if (!studentGroup) {
+              setError('You must be part of a group to submit this assignment.');
+              setIsSubmitting(false);
+              return;
+            }
+            
+            // Check if student is the group leader
+            if (studentGroup.leaderId !== studentId) {
+              setError('Only the group leader can submit this assignment.');
+              setIsSubmitting(false);
+              return;
+            }
+            
+            // Leader submits for entire group
+            addGroupAcknowledgement(assignment.id, studentGroup.id, studentId);
+          } else {
+            // Individual assignment - record acknowledgement timestamp
+            addAcknowledgement(assignment.id, studentId);
+          }
+        }
+        setIsSubmitting(false);
+        setStep(3);
+        
+        // Auto close and refresh after success
+        setTimeout(() => {
+          setStep(1);
+          onClose();
+          onSubmit();
+        }, 2000);
+      } catch (err) {
+        setError(err.message || 'An error occurred while submitting.');
+        setIsSubmitting(false);
       }
-      setIsSubmitting(false);
-      setStep(3);
-      
-      // Auto close and refresh after success
-      setTimeout(() => {
-        setStep(1);
-        onClose();
-        onSubmit();
-      }, 2000);
     }, 500);
   };
 
   const handleCancel = () => {
     setStep(1);
+    setError('');
     onClose();
   };
+
+  // Get student's group info if this is a group assignment
+  const studentGroup = assignment?.submissionType === 'group' 
+    ? getStudentGroup(studentId, assignment.courseId) 
+    : null;
 
   return (
     <Modal isOpen={isOpen} onClose={handleCancel} title="Confirm Submission" size="md">
@@ -47,10 +84,17 @@ const ConfirmSubmissionModal = ({ isOpen, onClose, assignment, studentId, onSubm
               <p className="text-sm text-blue-800 mt-2">
                 <strong>Due Date:</strong> {assignment?.dueDate}
               </p>
+              {assignment?.submissionType === 'group' && studentGroup && (
+                <p className="text-sm text-blue-800 mt-2">
+                  <strong>Group:</strong> {studentGroup.name} ({studentGroup.members.length} members)
+                </p>
+              )}
             </div>
             
             <p className="text-gray-700">
-              Have you uploaded your assignment to the Drive link provided?
+              {assignment?.submissionType === 'group' && studentGroup
+                ? 'Has your group uploaded the assignment to the Drive link provided?'
+                : 'Have you uploaded your assignment to the Drive link provided?'}
             </p>
             
             <div className="flex space-x-3">
@@ -58,7 +102,9 @@ const ConfirmSubmissionModal = ({ isOpen, onClose, assignment, studentId, onSubm
                 onClick={handleFirstConfirm}
                 className="btn-primary flex-1"
               >
-                Yes, I have submitted
+                {assignment?.submissionType === 'group' && studentGroup
+                  ? 'Yes, group has submitted'
+                  : 'Yes, I have submitted'}
               </button>
               <button
                 onClick={handleCancel}
@@ -72,6 +118,17 @@ const ConfirmSubmissionModal = ({ isOpen, onClose, assignment, studentId, onSubm
 
         {step === 2 && (
           <div className="space-y-4">
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                <div className="flex items-start">
+                  <svg className="w-6 h-6 text-red-600 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <p className="text-sm text-red-800">{error}</p>
+                </div>
+              </div>
+            )}
+            
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
               <div className="flex items-start">
                 <svg className="w-6 h-6 text-yellow-600 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -80,7 +137,9 @@ const ConfirmSubmissionModal = ({ isOpen, onClose, assignment, studentId, onSubm
                 <div>
                   <p className="font-semibold text-yellow-800">Final Confirmation</p>
                   <p className="text-sm text-yellow-700 mt-1">
-                    Once you confirm, this action cannot be undone. Please ensure you've uploaded your work to the Drive link.
+                    {assignment?.submissionType === 'group' && studentGroup
+                      ? `This will mark the assignment as submitted for all ${studentGroup.members.length} group members. This action cannot be undone.`
+                      : 'Once you confirm, this action cannot be undone. Please ensure you\'ve uploaded your work to the Drive link.'}
                   </p>
                 </div>
               </div>
@@ -117,7 +176,11 @@ const ConfirmSubmissionModal = ({ isOpen, onClose, assignment, studentId, onSubm
               </svg>
             </div>
             <h3 className="text-xl font-semibold text-gray-900 mb-2">Submission Confirmed!</h3>
-            <p className="text-gray-600">Your assignment has been marked as submitted.</p>
+            <p className="text-gray-600">
+              {assignment?.submissionType === 'group' && studentGroup
+                ? `Assignment marked as submitted for all ${studentGroup.members.length} group members.`
+                : 'Your assignment has been marked as submitted.'}
+            </p>
           </div>
         )}
       </div>

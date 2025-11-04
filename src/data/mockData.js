@@ -40,73 +40,59 @@ export const mockUsers = [
 
 // Mock assignments data
 export const mockAssignments = [
-  {
-    id: 'assign-1',
-    title: 'Introduction to React Hooks',
-    description: 'Complete the tutorial on useState and useEffect hooks. Submit your code via the Drive link.',
-    dueDate: '2025-11-15',
-    driveLink: 'https://drive.google.com/folder/sample-1',
-    createdBy: 'admin-1',
-    createdAt: '2025-10-20'
-  },
-  {
-    id: 'assign-2',
-    title: 'Component Architecture Design',
-    description: 'Design a component tree for a social media dashboard. Include wireframes and explanations.',
-    dueDate: '2025-11-22',
-    driveLink: 'https://drive.google.com/folder/sample-2',
-    createdBy: 'admin-1',
-    createdAt: '2025-10-25'
-  },
-  {
-    id: 'assign-3',
-    title: 'Tailwind CSS Styling Project',
-    description: 'Build a responsive landing page using Tailwind CSS. Focus on mobile-first design.',
-    dueDate: '2025-11-30',
-    driveLink: 'https://drive.google.com/folder/sample-3',
-    createdBy: 'admin-2',
-    createdAt: '2025-10-28'
-  },
-  {
-    id: 'assign-4',
-    title: 'State Management with Context API',
-    description: 'Implement a shopping cart using React Context API. Include add, remove, and checkout features.',
-    dueDate: '2025-12-05',
-    driveLink: 'https://drive.google.com/folder/sample-4',
-    createdBy: 'admin-2',
-    createdAt: '2025-10-30'
-  }
+  // Starting with no assignments - professors will create them
 ];
 
 // Mock submissions data - tracks which students submitted which assignments
 export const mockSubmissions = [
+  // Starting with no submissions - students will submit when assignments are created
+];
+
+// Mock courses data
+export const mockCourses = [
   {
-    id: 'sub-1',
-    assignmentId: 'assign-1',
-    studentId: 'user-1',
-    submittedAt: '2025-11-10',
-    status: 'submitted'
+    id: 'course-1',
+    name: 'Web Development Fundamentals',
+    code: 'CS101',
+    semester: 'Fall 2025',
+    instructorId: 'admin-1',
+    enrolledStudents: ['user-1', 'user-2', 'user-3', 'user-4']
   },
   {
-    id: 'sub-2',
-    assignmentId: 'assign-1',
-    studentId: 'user-2',
-    submittedAt: '2025-11-12',
-    status: 'submitted'
+    id: 'course-2',
+    name: 'Advanced Frontend Development',
+    code: 'CS201',
+    semester: 'Fall 2025',
+    instructorId: 'admin-1',
+    enrolledStudents: ['user-1', 'user-2']
   },
   {
-    id: 'sub-3',
-    assignmentId: 'assign-2',
-    studentId: 'user-1',
-    submittedAt: '2025-11-18',
-    status: 'submitted'
+    id: 'course-3',
+    name: 'UI/UX Design Principles',
+    code: 'DES101',
+    semester: 'Fall 2025',
+    instructorId: 'admin-2',
+    enrolledStudents: ['user-3', 'user-4']
+  }
+];
+
+// Mock groups data
+export const mockGroups = [
+  {
+    id: 'group-1',
+    name: 'Team Alpha',
+    courseId: 'course-1',
+    leaderId: 'user-1',
+    members: ['user-1', 'user-2'],
+    createdAt: '2025-10-15'
   },
   {
-    id: 'sub-4',
-    assignmentId: 'assign-3',
-    studentId: 'user-3',
-    submittedAt: '2025-11-25',
-    status: 'submitted'
+    id: 'group-2',
+    name: 'Team Beta',
+    courseId: 'course-3',
+    leaderId: 'user-3',
+    members: ['user-3', 'user-4'],
+    createdAt: '2025-10-16'
   }
 ];
 
@@ -120,5 +106,20 @@ export const initializeData = () => {
   }
   if (!localStorage.getItem('submissions')) {
     localStorage.setItem('submissions', JSON.stringify(mockSubmissions));
+  }
+  if (!localStorage.getItem('courses')) {
+    // Get all student IDs from mockUsers
+    const allStudentIds = mockUsers.filter(u => u.role === 'student').map(u => u.id);
+    
+    // Update each course to include all students
+    const coursesWithAllStudents = mockCourses.map(course => ({
+      ...course,
+      enrolledStudents: allStudentIds
+    }));
+    
+    localStorage.setItem('courses', JSON.stringify(coursesWithAllStudents));
+  }
+  if (!localStorage.getItem('groups')) {
+    localStorage.setItem('groups', JSON.stringify(mockGroups));
   }
 };

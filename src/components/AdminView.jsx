@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AssignmentCard from './AssignmentCard';
 import AssignmentForm from './AssignmentForm';
+import CourseForm from './CourseForm';
 import ProgressBar from './ProgressBar';
 import Modal from './Modal';
 import {
@@ -8,14 +9,19 @@ import {
   getUsers,
   getSubmissionsByAssignment,
   deleteAssignment,
-  getAssignmentProgress
+  getAssignmentProgress,
+  getCourses
 } from '../utils/storageUtils';
 
 const AdminView = ({ user }) => {
   const [assignments, setAssignments] = useState([]);
   const [students, setStudents] = useState([]);
+  const [courses, setCourses] = useState([]);
+  const [selectedCourse, setSelectedCourse] = useState(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [showCourseForm, setShowCourseForm] = useState(false);
   const [editingAssignment, setEditingAssignment] = useState(null);
+  const [editingCourse, setEditingCourse] = useState(null);
   const [selectedAssignment, setSelectedAssignment] = useState(null);
   const [deleteConfirmModal, setDeleteConfirmModal] = useState({ show: false, assignment: null });
 
@@ -24,8 +30,15 @@ const AdminView = ({ user }) => {
   }, [user]);
 
   const loadData = () => {
+    const allCourses = getCourses();
+    const myCourses = allCourses.filter(c => c.instructorId === user.id);
+    
+    setCourses(myCourses);
+
     const allAssignments = getAssignments();
-    const myAssignments = allAssignments.filter(a => a.createdBy === user.id);
+    const myAssignments = myCourses.length > 0
+      ? myCourses.flatMap(course => allAssignments.filter(a => a.courseId === course.id))
+      : [];
     setAssignments(myAssignments);
 
     const allUsers = getUsers();
@@ -35,6 +48,11 @@ const AdminView = ({ user }) => {
 
   const handleCreateSuccess = () => {
     loadData();
+  };
+
+  const handleCourseSuccess = () => {
+    loadData();
+    setEditingCourse(null);
   };
 
   const handleEdit = (assignment) => {
@@ -72,95 +90,257 @@ const AdminView = ({ user }) => {
     };
   };
 
+  const getFilteredAssignments = () => {
+    if (!selectedCourse) return assignments;
+    return assignments.filter(a => a.courseId === selectedCourse.id);
+  };
+
+  const filteredAssignments = getFilteredAssignments();
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Welcome section */}
-      <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">
+              Professor Dashboard
+            </h2>
+            <p className="text-gray-600">Manage your courses and assignments</p>
+          </div>
+          {courses.length > 0 && (
+            <button
+              onClick={() => setShowCourseForm(true)}
+              className="bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center"
+            >
+              <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              Create Course
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Empty State for New Professors */}
+      {courses.length === 0 && (
+        <div className="max-w-3xl mx-auto">
+          <div className="card text-center py-16 bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-dashed border-purple-300">
+            <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+              <svg className="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+              </svg>
+            </div>
+            
+            <h3 className="text-2xl font-bold text-gray-900 mb-3">
+              Welcome to JoinEasy! 🎉
+            </h3>
+            <p className="text-gray-600 mb-2 text-lg">
+              You don't have any courses yet
+            </p>
+            <p className="text-gray-500 mb-8 max-w-md mx-auto">
+              Get started by creating your first course. Once you have courses, you can create assignments, track student progress, and manage submissions.
+            </p>
+
+            <button
+              onClick={() => setShowCourseForm(true)}
+              className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white px-8 py-4 rounded-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 inline-flex items-center text-lg"
+            >
+              <svg className="w-6 h-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              Create Your First Course
+            </button>
+
+            <div className="bg-white rounded-lg p-6 max-w-md mx-auto mt-8 text-left shadow-md">
+              <h4 className="font-semibold text-gray-900 mb-4 flex items-center">
+                <svg className="w-5 h-5 mr-2 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                Quick Start Guide
+              </h4>
+              <ol className="space-y-3 text-sm text-gray-600">
+                <li className="flex items-start">
+                  <span className="flex-shrink-0 w-6 h-6 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center font-semibold text-xs mr-3 mt-0.5">1</span>
+                  <span><strong className="text-gray-900">Create a Course</strong> with a name, code, and semester</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="flex-shrink-0 w-6 h-6 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center font-semibold text-xs mr-3 mt-0.5">2</span>
+                  <span><strong className="text-gray-900">Create Assignments</strong> with due dates, OneDrive links, and submission types</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="flex-shrink-0 w-6 h-6 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center font-semibold text-xs mr-3 mt-0.5">3</span>
+                  <span><strong className="text-gray-900">Track Progress</strong> and view student submissions in real-time</span>
+                </li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Courses Section */}
+      {courses.length > 0 && !selectedCourse && (
+        <div className="mb-8">
+          <h3 className="text-xl font-semibold text-gray-900 mb-4">Your Courses</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {courses.map((course) => {
+              const courseAssignments = assignments.filter(a => a.courseId === course.id);
+              const avgProgress = courseAssignments.length > 0
+                ? Math.round(courseAssignments.reduce((sum, a) => sum + getAssignmentProgress(a.id), 0) / courseAssignments.length)
+                : 0;
+
+              return (
+                <div
+                  key={course.id}
+                  onClick={() => setSelectedCourse(course)}
+                  className="card hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:scale-105"
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <h4 className="text-lg font-semibold text-gray-900">{course.name}</h4>
+                      <p className="text-sm text-gray-600">{course.code}</p>
+                    </div>
+                    <span className="px-3 py-1 bg-purple-100 text-purple-700 text-xs font-semibold rounded-full">
+                      {course.semester}
+                    </span>
+                  </div>
+                  
+                  <div className="space-y-3 mt-4">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-600">Assignments</span>
+                      <span className="font-semibold text-gray-900">{courseAssignments.length}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-600">Students</span>
+                      <span className="font-semibold text-gray-900">{course.enrolledStudents.length}</span>
+                    </div>
+                    <div>
+                      <div className="flex items-center justify-between text-sm mb-2">
+                        <span className="text-gray-600">Avg. Progress</span>
+                        <span className="font-semibold text-gray-900">{avgProgress}%</span>
+                      </div>
+                      <ProgressBar percentage={avgProgress} showLabel={false} />
+                    </div>
+                  </div>
+
+                  <div className="mt-4 pt-4 border-t border-gray-200">
+                    <button className="text-purple-600 hover:text-purple-700 font-medium text-sm flex items-center">
+                      View Assignments
+                      <svg className="w-4 h-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Assignment Management Section - shown when course is selected */}
+      {selectedCourse && (
         <div>
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">
-            Professor Dashboard
-          </h2>
-          <p className="text-gray-600">Manage assignments and track student progress</p>
-        </div>
-        <button
-          onClick={() => setShowCreateForm(true)}
-          className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center"
-        >
-          <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          Create Assignment
-        </button>
-      </div>
-
-      {/* Overview stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="card bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium text-purple-800">Total Assignments</h3>
-            <div className="w-10 h-10 bg-purple-200 rounded-full flex items-center justify-center">
-              <svg className="w-6 h-6 text-purple-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          {/* Breadcrumb */}
+          <div className="mb-6 flex items-center gap-2 text-sm">
+            <button
+              onClick={() => setSelectedCourse(null)}
+              className="text-purple-600 hover:text-purple-700 font-medium flex items-center"
+            >
+              <svg className="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
-            </div>
+              All Courses
+            </button>
+            <span className="text-gray-400">/</span>
+            <span className="text-gray-900 font-medium">{selectedCourse.name}</span>
           </div>
-          <p className="text-3xl font-bold text-purple-900">{assignments.length}</p>
-          <p className="text-sm text-purple-700 mt-2">Created by you</p>
-        </div>
 
-        <div className="card bg-gradient-to-br from-pink-50 to-pink-100 border border-pink-200">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium text-pink-800">Total Students</h3>
-            <div className="w-10 h-10 bg-pink-200 rounded-full flex items-center justify-center">
-              <svg className="w-6 h-6 text-pink-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-              </svg>
+          {/* Course header with create button */}
+          <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h3 className="text-2xl font-bold text-gray-900">{selectedCourse.name}</h3>
+              <p className="text-gray-600">{selectedCourse.code} • {selectedCourse.semester}</p>
             </div>
-          </div>
-          <p className="text-3xl font-bold text-pink-900">{students.length}</p>
-          <p className="text-sm text-pink-700 mt-2">Enrolled students</p>
-        </div>
-
-        <div className="card bg-gradient-to-br from-purple-50 to-pink-100 border border-purple-200">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium text-purple-800">Avg. Completion</h3>
-            <div className="w-10 h-10 bg-purple-200 rounded-full flex items-center justify-center">
-              <svg className="w-6 h-6 text-purple-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            <button
+              onClick={() => setShowCreateForm(true)}
+              className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center"
+            >
+              <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
-            </div>
-          </div>
-          <p className="text-3xl font-bold text-purple-900">
-            {assignments.length > 0
-              ? Math.round(
-                  assignments.reduce((sum, a) => sum + getAssignmentProgress(a.id), 0) /
-                    assignments.length
-                )
-              : 0}%
-          </p>
-          <p className="text-sm text-green-700 mt-2">Across all assignments</p>
-        </div>
-      </div>
-
-      {/* Assignments list */}
-      <div>
-        <h3 className="text-xl font-semibold text-gray-900 mb-4">Your Assignments</h3>
-
-        {assignments.length === 0 ? (
-          <div className="card text-center py-12">
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-            </div>
-            <p className="text-gray-500 mb-4">You haven't created any assignments yet</p>
-            <button onClick={() => setShowCreateForm(true)} className="btn-primary">
-              Create Your First Assignment
+              Create Assignment
             </button>
           </div>
-        ) : (
-          <div className="space-y-6">
-            {assignments.map((assignment) => {
+
+          {/* Overview stats for selected course */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div className="card bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm font-medium text-purple-800">Course Assignments</h3>
+                <div className="w-10 h-10 bg-purple-200 rounded-full flex items-center justify-center">
+                  <svg className="w-6 h-6 text-purple-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+              </div>
+              <p className="text-3xl font-bold text-purple-900">{filteredAssignments.length}</p>
+              <p className="text-sm text-purple-700 mt-2">In this course</p>
+            </div>
+
+            <div className="card bg-gradient-to-br from-pink-50 to-pink-100 border border-pink-200">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm font-medium text-pink-800">Enrolled Students</h3>
+                <div className="w-10 h-10 bg-pink-200 rounded-full flex items-center justify-center">
+                  <svg className="w-6 h-6 text-pink-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                  </svg>
+                </div>
+              </div>
+              <p className="text-3xl font-bold text-pink-900">{selectedCourse.enrolledStudents.length}</p>
+              <p className="text-sm text-pink-700 mt-2">In this course</p>
+            </div>
+
+            <div className="card bg-gradient-to-br from-purple-50 to-pink-100 border border-purple-200">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm font-medium text-purple-800">Avg. Completion</h3>
+                <div className="w-10 h-10 bg-purple-200 rounded-full flex items-center justify-center">
+                  <svg className="w-6 h-6 text-purple-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                </div>
+              </div>
+              <p className="text-3xl font-bold text-purple-900">
+                {filteredAssignments.length > 0
+                  ? Math.round(
+                      filteredAssignments.reduce((sum, a) => sum + getAssignmentProgress(a.id), 0) /
+                        filteredAssignments.length
+                    )
+                  : 0}%
+              </p>
+              <p className="text-sm text-green-700 mt-2">Across assignments</p>
+            </div>
+          </div>
+
+          {/* Assignments list */}
+          <div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-4">Assignments</h3>
+
+            {filteredAssignments.length === 0 ? (
+              <div className="card text-center py-12">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <p className="text-gray-500 mb-4">No assignments in this course yet</p>
+                <button onClick={() => setShowCreateForm(true)} className="btn-primary">
+                  Create Your First Assignment
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {filteredAssignments.map((assignment) => {
               const details = getSubmissionDetails(assignment.id);
               const isExpanded = selectedAssignment?.id === assignment.id;
 
@@ -284,7 +464,9 @@ const AdminView = ({ user }) => {
             })}
           </div>
         )}
-      </div>
+          </div>
+        </div>
+      )}
 
       {/* Assignment form modals */}
       <AssignmentForm
@@ -292,6 +474,7 @@ const AdminView = ({ user }) => {
         onClose={() => setShowCreateForm(false)}
         onSuccess={handleCreateSuccess}
         userId={user.id}
+        selectedCourseId={selectedCourse?.id}
       />
 
       <AssignmentForm
@@ -300,6 +483,19 @@ const AdminView = ({ user }) => {
         onSuccess={handleCreateSuccess}
         assignment={editingAssignment}
         userId={user.id}
+        selectedCourseId={selectedCourse?.id}
+      />
+
+      {/* Course form modals */}
+      <CourseForm
+        isOpen={showCourseForm}
+        onClose={() => {
+          setShowCourseForm(false);
+          setEditingCourse(null);
+        }}
+        onSuccess={handleCourseSuccess}
+        editingCourse={editingCourse}
+        instructorId={user.id}
       />
 
       {/* Delete confirmation modal */}

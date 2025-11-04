@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { getUsers, setCurrentUser } from '../utils/storageUtils';
+import { getUsers, setCurrentUser, generateToken, setAuthToken } from '../utils/storageUtils';
 
-const Login = ({ onLogin }) => {
+const Login = ({ onLogin, onSwitchToRegister }) => {
   const [selectedUser, setSelectedUser] = useState('');
   const [userType, setUserType] = useState('student'); // 'student' or 'professor'
   const users = getUsers();
@@ -12,6 +12,10 @@ const Login = ({ onLogin }) => {
 
     const user = users.find(u => u.id === selectedUser);
     if (user) {
+      // Generate JWT token
+      const token = generateToken(user);
+      setAuthToken(token);
+      
       setCurrentUser(user);
       onLogin(user);
     }
@@ -118,6 +122,24 @@ const Login = ({ onLogin }) => {
                   Continue to Dashboard
                 </button>
               </form>
+
+              {/* Switch to Register */}
+              <div className="text-center pt-4 mt-4 border-t border-gray-200">
+                <p className="text-sm text-gray-600">
+                  Don't have an account?{' '}
+                  <button
+                    type="button"
+                    onClick={onSwitchToRegister}
+                    className={`font-medium ${
+                      userType === 'student'
+                        ? 'text-blue-600 hover:text-blue-700'
+                        : 'text-purple-600 hover:text-purple-700'
+                    }`}
+                  >
+                    Register here
+                  </button>
+                </p>
+              </div>
             </div>
           </div>
         </div>

@@ -1,7 +1,18 @@
 import React, { useState } from 'react';
 import { isSubmitted } from '../utils/storageUtils';
 
-const AssignmentCard = ({ assignment, userRole, userId, onMarkSubmitted, onEdit, onDelete }) => {
+const AssignmentCard = ({ 
+  assignment, 
+  userRole, 
+  userId, 
+  onMarkSubmitted, 
+  onEdit, 
+  onDelete,
+  isGroupAssignment,
+  isGroupLeader,
+  isInGroup,
+  groupName
+}) => {
   const [showActions, setShowActions] = useState(false);
   const submitted = userRole === 'student' ? isSubmitted(assignment.id, userId) : false;
   
@@ -44,7 +55,7 @@ const AssignmentCard = ({ assignment, userRole, userId, onMarkSubmitted, onEdit,
       </div>
 
       <div className="flex flex-wrap gap-4 mb-4 text-sm">
-        <div className="flex items-center text-gray-600">
+  <div className="flex items-center text-gray-600">
           <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </svg>
@@ -58,7 +69,7 @@ const AssignmentCard = ({ assignment, userRole, userId, onMarkSubmitted, onEdit,
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
           </svg>
           <a 
-            href={assignment.driveLink} 
+            href={assignment.oneDriveLink || assignment.driveLink} 
             target="_blank" 
             rel="noopener noreferrer"
             className="text-primary-600 hover:text-primary-800 font-medium hover:underline"
@@ -66,17 +77,48 @@ const AssignmentCard = ({ assignment, userRole, userId, onMarkSubmitted, onEdit,
             Submission Link
           </a>
         </div>
+        <div className="flex items-center text-sm text-gray-500 ml-2">
+          <span className="px-2 py-0.5 bg-gray-100 rounded-full">{assignment.submissionType ? assignment.submissionType.toUpperCase() : 'INDIVIDUAL'}</span>
+        </div>
       </div>
 
       {/* Student actions */}
       {userRole === 'student' && (
         <div className="pt-4 border-t border-gray-200">
-          {!submitted ? (
+          {isGroupAssignment && !isInGroup ? (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-3">
+              <div className="flex items-start">
+                <svg className="w-5 h-5 text-yellow-600 mr-2 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-yellow-800 mb-1">Group Assignment - No Group Assigned</p>
+                  <p className="text-xs text-yellow-700">Your professor hasn't assigned you to a group yet. Please contact your professor to be added to a group for this assignment.</p>
+                </div>
+              </div>
+            </div>
+          ) : isGroupAssignment && !isGroupLeader ? (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div className="flex items-start">
+                <svg className="w-5 h-5 text-blue-600 mr-2 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-blue-800">Group: {groupName}</p>
+                  <p className="text-xs text-blue-700">Only your group leader can submit this assignment.</p>
+                  {submitted && (
+                    <p className="text-xs text-green-700 mt-1 font-medium">✓ Submitted by group leader</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          ) : !submitted ? (
             <button
               onClick={() => onMarkSubmitted(assignment)}
               className="btn-primary w-full"
+              disabled={isGroupAssignment && !isInGroup}
             >
-              Mark as Submitted
+              {isGroupAssignment && isGroupLeader ? 'Submit for Group' : 'Mark as Submitted'}
             </button>
           ) : (
             <div className="flex items-center justify-center text-green-600 font-medium">

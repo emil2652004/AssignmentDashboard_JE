@@ -1,23 +1,41 @@
 import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
 import Login from './components/Login';
+import Register from './components/Register';
 import StudentView from './components/StudentView';
 import AdminView from './components/AdminView';
 import { initializeData } from './data/mockData';
-import { getCurrentUser } from './utils/storageUtils';
+import { getCurrentUser, getAuthToken, verifyToken, clearCurrentUser, syncAllStudentEnrollments } from './utils/storageUtils';
 
 function App() {
   const [currentUser, setCurrentUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [showRegister, setShowRegister] = useState(false);
 
   useEffect(() => {
     // Initialize mock data in localStorage
     initializeData();
+    
+    // Sync all student enrollments to ensure all students are in all courses
+    syncAllStudentEnrollments();
 
-    // Check if user is already logged in
-    const user = getCurrentUser();
-    if (user) {
-      setCurrentUser(user);
+    // Check if user is already logged in with valid token
+    const token = getAuthToken();
+    if (token) {
+      const tokenData = verifyToken(token);
+      if (tokenData) {
+        // Token is valid, restore user session
+        const user = getCurrentUser();
+        if (user && user.id === tokenData.id) {
+          setCurrentUser(user);
+        } else {
+          // Token valid but user data mismatch, clear session
+          clearCurrentUser();
+        }
+      } else {
+        // Token expired or invalid, clear session
+        clearCurrentUser();
+      }
     }
     
     setIsLoading(false);
@@ -27,8 +45,22 @@ function App() {
     setCurrentUser(user);
   };
 
+  const handleRegister = (user) => {
+    setCurrentUser(user);
+    setShowRegister(false);
+  };
+
   const handleLogout = () => {
+    clearCurrentUser();
     setCurrentUser(null);
+  };
+
+  const handleSwitchToRegister = () => {
+    setShowRegister(true);
+  };
+
+  const handleSwitchToLogin = () => {
+    setShowRegister(false);
   };
 
   if (isLoading) {
@@ -43,7 +75,11 @@ function App() {
   }
 
   if (!currentUser) {
-    return <Login onLogin={handleLogin} />;
+    return showRegister ? (
+      <Register onRegister={handleRegister} onSwitchToLogin={handleSwitchToLogin} />
+    ) : (
+      <Login onLogin={handleLogin} onSwitchToRegister={handleSwitchToRegister} />
+    );
   }
 
   return (
