@@ -83,6 +83,29 @@ const StudentView = ({ user }) => {
     return Math.round((submitted / courseAssignments.length) * 100);
   };
 
+  // Get due and overdue assignments for reminders
+  const getDueAndOverdueAssignments = () => {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    
+    const upcomingAssignments = assignments.filter(a => {
+      if (isSubmitted(a.id, user.id)) return false;
+      const dueDate = new Date(a.dueDate);
+      const daysUntil = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
+      return daysUntil >= 0 && daysUntil <= 3; // Due today or within next 3 days
+    });
+
+    const overdueAssignments = assignments.filter(a => {
+      if (isSubmitted(a.id, user.id)) return false;
+      const dueDate = new Date(a.dueDate);
+      return dueDate < today;
+    });
+
+    return { upcomingAssignments, overdueAssignments };
+  };
+
+  const { upcomingAssignments, overdueAssignments } = getDueAndOverdueAssignments();
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Welcome section */}
@@ -92,6 +115,126 @@ const StudentView = ({ user }) => {
         </h2>
         <p className="text-gray-600">Your enrolled courses and assignments</p>
       </div>
+
+      {/* Due & Overdue Reminders - shown when no course is selected */}
+      {!selectedCourse && (overdueAssignments.length > 0 || upcomingAssignments.length > 0) && (
+        <div className="mb-8 space-y-4">
+          {/* Overdue Assignments Alert */}
+          {overdueAssignments.length > 0 && (
+            <div className="bg-gradient-to-r from-red-50 via-rose-50 to-pink-50 border-2 border-red-300 rounded-2xl p-6 shadow-lg animate-pulse-slow">
+              <div className="flex items-start">
+                <div className="flex-shrink-0">
+                  <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-pink-600 rounded-2xl flex items-center justify-center shadow-lg">
+                    <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                </div>
+                <div className="ml-4 flex-1">
+                  <h3 className="text-lg font-bold text-red-900 mb-2">
+                    ⚠️ {overdueAssignments.length} Overdue Assignment{overdueAssignments.length !== 1 ? 's' : ''}
+                  </h3>
+                  <div className="space-y-2">
+                    {overdueAssignments.slice(0, 3).map(assignment => {
+                      const course = courses.find(c => c.id === assignment.courseId);
+                      const daysOverdue = Math.abs(Math.floor((new Date(assignment.dueDate) - new Date()) / (1000 * 60 * 60 * 24)));
+                      return (
+                        <div 
+                          key={assignment.id}
+                          onClick={() => {
+                            setSelectedCourse(course);
+                            setFilter('pending');
+                          }}
+                          className="flex items-center justify-between bg-white/80 backdrop-blur-sm px-4 py-3 rounded-xl border border-red-200 hover:border-red-400 hover:shadow-md transition-all cursor-pointer group"
+                        >
+                          <div className="flex-1">
+                            <p className="font-bold text-gray-900 group-hover:text-red-700 transition-colors">
+                              {assignment.title}
+                            </p>
+                            <p className="text-sm text-gray-600">
+                              {course?.name} • {daysOverdue} day{daysOverdue !== 1 ? 's' : ''} overdue
+                            </p>
+                          </div>
+                          <svg className="w-5 h-5 text-red-600 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </div>
+                      );
+                    })}
+                    {overdueAssignments.length > 3 && (
+                      <p className="text-sm text-red-700 font-semibold mt-2">
+                        + {overdueAssignments.length - 3} more overdue assignment{overdueAssignments.length - 3 !== 1 ? 's' : ''}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Upcoming Due Assignments */}
+          {upcomingAssignments.length > 0 && (
+            <div className="bg-gradient-to-r from-orange-50 via-amber-50 to-yellow-50 border-2 border-orange-300 rounded-2xl p-6 shadow-lg">
+              <div className="flex items-start">
+                <div className="flex-shrink-0">
+                  <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-amber-600 rounded-2xl flex items-center justify-center shadow-lg">
+                    <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                </div>
+                <div className="ml-4 flex-1">
+                  <h3 className="text-lg font-bold text-orange-900 mb-2">
+                    ⏰ {upcomingAssignments.length} Upcoming Deadline{upcomingAssignments.length !== 1 ? 's' : ''}
+                  </h3>
+                  <div className="space-y-2">
+                    {upcomingAssignments.slice(0, 3).map(assignment => {
+                      const course = courses.find(c => c.id === assignment.courseId);
+                      const dueDate = new Date(assignment.dueDate);
+                      const today = new Date();
+                      today.setHours(0, 0, 0, 0);
+                      const daysUntil = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
+                      
+                      let dueDateText = '';
+                      if (daysUntil === 0) dueDateText = 'Due today';
+                      else if (daysUntil === 1) dueDateText = 'Due tomorrow';
+                      else dueDateText = `Due in ${daysUntil} days`;
+
+                      return (
+                        <div 
+                          key={assignment.id}
+                          onClick={() => {
+                            setSelectedCourse(course);
+                            setFilter('pending');
+                          }}
+                          className="flex items-center justify-between bg-white/80 backdrop-blur-sm px-4 py-3 rounded-xl border border-orange-200 hover:border-orange-400 hover:shadow-md transition-all cursor-pointer group"
+                        >
+                          <div className="flex-1">
+                            <p className="font-bold text-gray-900 group-hover:text-orange-700 transition-colors">
+                              {assignment.title}
+                            </p>
+                            <p className="text-sm text-gray-600">
+                              {course?.name} • {dueDateText}
+                            </p>
+                          </div>
+                          <svg className="w-5 h-5 text-orange-600 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </div>
+                      );
+                    })}
+                    {upcomingAssignments.length > 3 && (
+                      <p className="text-sm text-orange-700 font-semibold mt-2">
+                        + {upcomingAssignments.length - 3} more upcoming assignment{upcomingAssignments.length - 3 !== 1 ? 's' : ''}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Courses Section - shown when no course is selected */}
       {!selectedCourse && (

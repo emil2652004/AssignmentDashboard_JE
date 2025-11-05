@@ -81,4 +81,17 @@
   .gradient-text {
     @apply bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent;
   }
+
+  .animate-pulse-slow {
+    animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  @keyframes pulse-slow {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.95;
+    }
+  }
 }
