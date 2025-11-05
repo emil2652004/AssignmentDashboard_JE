@@ -94,8 +94,8 @@ const Login = ({ onLogin, onSwitchToRegister }) => {
                 </h2>
                 <p className="text-sm text-gray-600 font-medium">
                   {userType === 'student' 
-                    ? '📚 Access your assignments and track progress' 
-                    : '👨‍🏫 Manage assignments and monitor student submissions'}
+                    ? 'Access your assignments and track progress' 
+                    : 'Manage assignments and monitor student submissions'}
                 </p>
               </div>
               
