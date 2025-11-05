@@ -171,7 +171,6 @@ const Register = ({ onRegister, onSwitchToLogin }) => {
                 >
                   <div className="text-3xl mb-1">👨‍🎓</div>
                   <div className="font-bold text-gray-900">Student</div>
-                  <div className="text-xs text-gray-600 mt-1 font-medium">Access assignments</div>
                   {formData.role === 'student' && (
                     <div className="mt-2">
                       <span className="badge badge-blue text-xs">Selected</span>
@@ -191,7 +190,6 @@ const Register = ({ onRegister, onSwitchToLogin }) => {
                 >
                   <div className="text-3xl mb-1">👨‍🏫</div>
                   <div className="font-bold text-gray-900">Professor</div>
-                  <div className="text-xs text-gray-600 mt-1 font-medium">Manage courses</div>
                   {formData.role === 'admin' && (
                     <div className="mt-2">
                       <span className="badge badge-purple text-xs">Selected</span>
